@@ -67,6 +67,8 @@ public class JenkinsDatabaseSecurityRealmTest extends AbstractJUnitTest {
 
         jenkins.login().doLogin(user.id(), PWD);
 
+        waitFor(by.href("/user/" + NAME), 10);
+
         assertEquals(user, jenkins.getCurrentUser());
 
         jenkins.logout();
