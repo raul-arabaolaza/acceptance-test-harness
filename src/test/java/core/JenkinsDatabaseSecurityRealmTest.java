@@ -29,11 +29,11 @@ import org.jenkinsci.test.acceptance.junit.SmokeTest;
 import org.jenkinsci.test.acceptance.junit.WithPlugins;
 import org.jenkinsci.test.acceptance.po.GlobalSecurityConfig;
 import org.jenkinsci.test.acceptance.po.JenkinsDatabaseSecurityRealm;
-import org.jenkinsci.test.acceptance.po.Login;
 import org.jenkinsci.test.acceptance.po.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.openqa.selenium.TimeoutException;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -64,11 +64,11 @@ public class JenkinsDatabaseSecurityRealmTest extends AbstractJUnitTest {
 
         User user = realm.signup().fullname(FULL_NAME).email(EMAIL).password(PWD).signup(NAME);
 
-        Login login = jenkins.login().doLogin(user.id(), PWD);
+        jenkins.login().doLogin(user.id(), PWD);
 
         try {
-            assertThat(login, Matchers.loggedInAs(NAME));
-        } catch (Exception ex) {
+            waitFor(by.href("/user/" + NAME), 10);
+        } catch (TimeoutException ex) {
             System.out.println(driver.getPageSource());
             throw ex;
         }
