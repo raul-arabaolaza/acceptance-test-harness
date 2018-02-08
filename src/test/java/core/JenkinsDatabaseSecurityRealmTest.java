@@ -33,6 +33,7 @@ import org.jenkinsci.test.acceptance.po.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.mockito.internal.exceptions.ExceptionIncludingMockitoWarnings;
 import org.openqa.selenium.TimeoutException;
 
 import static org.hamcrest.Matchers.equalTo;
@@ -66,11 +67,17 @@ public class JenkinsDatabaseSecurityRealmTest extends AbstractJUnitTest {
 
         jenkins.login().doLogin(user.id(), PWD);
 
+        // Sometimes this is failing because the log in link is not updated, maybe a cache problem?
         try {
-            waitFor(by.href("/user/" + NAME), 10);
+            waitFor(by.href("/user/" + NAME), 5);
         } catch (TimeoutException ex) {
-            System.out.println(driver.getPageSource());
-            throw ex;
+            driver.navigate().refresh();
+            try {
+                waitFor(by.href("/user/" + NAME), 5);
+            } catch (Exception e) {
+                System.out.println("Refresh after login still failing");
+                System.out.println(driver.getPageSource());
+            }
         }
 
         assertEquals(user, jenkins.getCurrentUser());
