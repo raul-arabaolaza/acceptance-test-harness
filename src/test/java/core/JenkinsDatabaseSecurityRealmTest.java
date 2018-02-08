@@ -29,16 +29,15 @@ import org.jenkinsci.test.acceptance.junit.SmokeTest;
 import org.jenkinsci.test.acceptance.junit.WithPlugins;
 import org.jenkinsci.test.acceptance.po.GlobalSecurityConfig;
 import org.jenkinsci.test.acceptance.po.JenkinsDatabaseSecurityRealm;
+import org.jenkinsci.test.acceptance.po.Login;
 import org.jenkinsci.test.acceptance.po.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
-import static org.hamcrest.Matchers.any;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 
 @WithPlugins("mailer")
@@ -65,9 +64,14 @@ public class JenkinsDatabaseSecurityRealmTest extends AbstractJUnitTest {
 
         User user = realm.signup().fullname(FULL_NAME).email(EMAIL).password(PWD).signup(NAME);
 
-        jenkins.login().doLogin(user.id(), PWD);
+        Login login = jenkins.login().doLogin(user.id(), PWD);
 
-        waitFor(by.href("/user/" + NAME), 10);
+        try {
+            assertThat(login, Matchers.loggedInAs(NAME));
+        } catch (Exception ex) {
+            System.out.println(driver.getPageSource());
+            throw ex;
+        }
 
         assertEquals(user, jenkins.getCurrentUser());
 
