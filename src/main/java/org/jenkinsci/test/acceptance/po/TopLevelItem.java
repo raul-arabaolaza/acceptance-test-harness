@@ -45,6 +45,7 @@ public abstract class TopLevelItem extends ContainerPageObject {
     public <T extends TopLevelItem> T renameTo(final String newName) {
         configure();
         String oldName = name;
+        waitFor(by.path("/name"));
         control("/name").set(newName);
         save();
         waitFor(by.button("Yes")).click();
